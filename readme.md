@@ -1,5 +1,7 @@
 # Project Lullaby
 
-kentaWhateverAMedeo
-
-baby crying
+## List of baby
+ame
+hare
+kumo
+kiri
