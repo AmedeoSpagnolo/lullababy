@@ -14,15 +14,16 @@ bool shake = false;
 void setup(void)
 {
   Serial.begin(9600);
-  player.begin();                     
+  player.begin();
   player.setPlayMode(PM_REPEAT_ONE);
-  player.playOne("cry.mp3"); 
+  player.playOne("cry.mp3");
 }
 void loop(){
 
   player.play();
-  player.setVolume(0x00);  
-  
+  player.setVolume(0x00);
+  player.play();
+
   int i;
   long x,y,z;
 
@@ -50,7 +51,7 @@ void loop(){
   Serial.println(shake);
   prev = x + y + z;
   if (shake > 0){
-    player.setVolume(0xfe);  
+    player.setVolume(0xfe);
     delay(10000);
   }
   delay(250);
