@@ -28,6 +28,11 @@ void loop()
   Serial.print(" Y:");
   Serial.print(y);
   Serial.print(" ");
-  Serial.println(rotateY);
+  Serial.print(rotateY);
+  int rotateZ = (z-277)/2.48 - 90;
+  Serial.print(" Z:");
+  Serial.print(z);
+  Serial.print(" ");
+  Serial.println(rotateZ);
   delay(50);
 }

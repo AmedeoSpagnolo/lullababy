@@ -40,7 +40,7 @@ void setup(void)
   Serial.begin(9600);
   player.begin();                      //will initialize the hardware and set default mode to be normal.
   player.setPlayMode(PM_REPEAT_ONE); //set mode to repeat playing a song
-  player.playOne("record.ogg");          //play a song with its name
+  player.playOne("light1.mp3") ;          //play a song with its name
 }
 void loop(void)
 {
