@@ -3,26 +3,20 @@
 #include <SPI.h>
 #include <arduino.h>
 #include <MusicPlayer.h>
-#include <TMRpcm.h>
 
 long x = 0;
 long y = 0;
 long z = 0;
-
-TMRpcm tmrpcm;
 
 long prev = 0;
 bool shake = false;
 
 void setup(void)
 {
-  tmrpcm.speakerPin = 9;
-  tmrpcm.setVolume(6);
   Serial.begin(9600);
   player.begin();                     
   player.setPlayMode(PM_REPEAT_ONE);
-//  player.playOne("cry.mp3"); 
-  tmrpcm.play("cry.mp3"); 
+  player.playOne("cry.mp3"); 
 }
 void loop(){
 
