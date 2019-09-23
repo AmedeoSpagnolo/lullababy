@@ -22,7 +22,6 @@ void loop(){
 
   player.play();
   player.setVolume(0x00);
-  player.play();
 
   int i;
   long x,y,z;
