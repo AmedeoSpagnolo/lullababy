@@ -40,7 +40,7 @@ Need to connect a button to D2
 #include <MusicPlayer.h>
 
 int which_play = 0;
-char mp3name[2][10] = {"2.mp3", "1.mp3"};
+char mp3name[2][30] = {"hard1.mp3", "light1.mp3"};
 int flag=0;
 
 void setup(void)
@@ -49,7 +49,7 @@ void setup(void)
   player.begin();  //will initialize the hardware and set default mode to be normal.
   player.keyDisable();
   player.setPlayMode(PM_REPEAT_ONE); //set mode to repeat playing a song
-  player.playOne("1.mp3");
+  player.playOne("light1.mp3");
   attachInterrupt(0, change, CHANGE);
 }
 
@@ -57,7 +57,7 @@ void loop(void)
 {
 
   player.play();
-  
+
     if(flag)
     {
         flag = 0;
@@ -70,4 +70,3 @@ void change()
 {
     flag = 1;
 }
-
