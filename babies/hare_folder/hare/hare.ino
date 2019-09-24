@@ -10,6 +10,7 @@ long x = 0;
 long y = 0;
 long z = 0;
 long prev = 0;
+long shake = 0;
 
 void state_machine_run(bool shake);
 void baby_mute();
@@ -18,9 +19,10 @@ void baby_cry();
 bool bigMovement();
 bool isMoving();
 
+
 int time = 0;
-int MAX_MUTE          = 400;
-int MAX_CALM          = 400;
+int MAX_MUTE          = 30;
+int MAX_CALM          = 50;
 int MAX_CRY           = 400;
 
 uint8_t state = MUTE;
@@ -66,13 +68,18 @@ void state_machine_run(bool shake)
       break;
 
     case CALM:
-      if(time > MAX_CALM && !shake){
+      if(time > MAX_CALM){
         time = 0;
         baby_cry();
         state = CRY;
       }
+      if(time < 0){
+        time = 0;
+        baby_mute();
+        state = MUTE;
+      }
       if(shake && time > 0){
-        time = time - 10;
+        time = time - 4;
       }
       if(bigMovement()){
         baby_cry();
@@ -86,8 +93,13 @@ void state_machine_run(bool shake)
         baby_mute();
         state = MUTE;
       }
-      if(shake && time > 0){){
-        time = time - 10;
+      if(time < 0){
+        time = 0;
+        baby_calm();
+        state = CALM;
+      }
+      if(shake && time > 0){
+        time = time - 4;
       }
       break;
 
