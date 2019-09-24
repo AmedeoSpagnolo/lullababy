@@ -3,16 +3,15 @@
 #include <arduino.h>
 #include <MusicPlayer.h>
 
-enum state_enum {MUTE,CALM,CRY,CALM_MOVING,CRY_MOVING};
+enum state_enum {MUTE,CALM,CRY};
 char mp3name[3][30] = {"silence.mp3","light1.mp3","hard1.mp3"};
 
 long x = 0;
 long y = 0;
 long z = 0;
 long prev = 0;
-bool shake = false;
 
-void state_machine_run();
+void state_machine_run(bool shake);
 void baby_mute();
 void baby_calm();
 void baby_cry();
@@ -23,9 +22,6 @@ int time = 0;
 int MAX_MUTE          = 400;
 int MAX_CALM          = 400;
 int MAX_CRY           = 400;
-int CALM_MOVING_TIME  = 400;
-int CRY_MOVING_TIME   = 400;
-
 
 uint8_t state = MUTE;
 
@@ -39,7 +35,7 @@ void setup(){
 
 void loop(){
   time += 1;
-  shake = isMoving();
+  bool shake = isMoving();
 
   Serial.print("State: ");
   Serial.print(state);
@@ -48,11 +44,12 @@ void loop(){
   Serial.print(" - Time: ");
   Serial.println(time);
   player.play();
-  state_machine_run();
+
+  state_machine_run(shake);
   delay(50);
 }
 
-void state_machine_run()
+void state_machine_run(bool shake)
 {
   switch(state)
   {
