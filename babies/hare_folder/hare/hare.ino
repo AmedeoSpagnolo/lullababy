@@ -18,7 +18,6 @@ void state_machine_run();
 void baby_mute();
 void baby_calm();
 void baby_cry();
-bool bigMovement();
 bool isMoving();
 
 int time = 0;
@@ -120,10 +119,6 @@ void baby_calm(){
 
 void baby_cry(){
   player.playOne(mp3name[2]);
-}
-
-bool bigMovement(){
-  return false;
 }
 
 bool isMoving(){
