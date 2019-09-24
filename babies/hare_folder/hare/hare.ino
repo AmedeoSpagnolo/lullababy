@@ -4,7 +4,7 @@
 #include <MusicPlayer.h>
 
 enum state_enum {MUTE,CALM,CRY};
-char mp3name[3][30] = {"silence.mp3","light1.mp3","hard1.mp3"};
+char mp3name[3][15] = {"a.mp3","b.mp3","c.mp3"};
 
 long x = 0;
 long y = 0;
@@ -13,7 +13,7 @@ long curr = 0;
 long prev = 0;
 bool shake;
 
-void state_machine_run(bool shake);
+void state_machine_run();
 void baby_mute();
 void baby_calm();
 void baby_cry();
@@ -22,9 +22,9 @@ bool isMoving();
 
 
 int time = 0;
-int MAX_MUTE          = 30;
-int MAX_CALM          = 50;
-int MAX_CRY           = 400;
+int MAX_MUTE          = 50;
+int MAX_CALM          = 100;
+int MAX_CRY           = 100;
 
 uint8_t state = MUTE;
 
@@ -37,22 +37,30 @@ void setup(){
 }
 
 void loop(){
-  time += 1;
   shake = isMoving();
-//
-//  Serial.print("State: ");
-//  Serial.print(state);
-//  Serial.print(" - Shake: ");
-//  Serial.print(shake);
-//  Serial.print(" - Time: ");
-//  Serial.println(time);
-  player.play();
+  if (shake){
+    time = time - 4;
+    Serial.print("time shake");
+  } else {
+    time += 1;
+    Serial.print("time no shake");
+  }
+ 
 
-  state_machine_run(shake);
+  Serial.print("State: ");
+  Serial.print(state);
+  Serial.print(" - Shake: ");
+  Serial.print(shake);
+  Serial.print(" - Time: ");
+  Serial.println(time);
+  player.play();
+  Serial.println("here");
+  state_machine_run();
+  Serial.println("aqui");
   delay(50);
 }
 
-void state_machine_run(bool shake)
+void state_machine_run()
 {
   switch(state)
   {
@@ -79,13 +87,13 @@ void state_machine_run(bool shake)
         baby_mute();
         state = MUTE;
       }
-      if(shake && time > 0){
-        time = time - 4;
-      }
-      if(bigMovement()){
-        baby_cry();
-        state = CRY;
-      }
+//      if(shake && time > 0){
+//        time = time - 4;
+//      }
+//      if(bigMovement()){
+//        baby_cry();
+//        state = CRY;
+//      }
       break;
 
     case CRY:
@@ -99,25 +107,33 @@ void state_machine_run(bool shake)
         baby_calm();
         state = CALM;
       }
-      if(shake && time > 0){
-        time = time - 4;
-      }
+//      if(shake && time > 0){
+//        time = time - 4;
+//      }
       break;
 
   }
 }
 
 void baby_mute(){
-  player.playOne(mp3name[0]);
+ Serial.println("mute play before"); 
+ player.playOne(mp3name[0]);
+ Serial.println("mute play after");
+ 
 }
 
 void baby_calm(){
-  player.playOne(mp3name[1]);
+ Serial.println("calm play before");
+ player.playOne(mp3name[1]);
+ Serial.println("calm play after");
+ 
 }
 
 void baby_cry(){
-  player.playOne(mp3name[2]);
-}
+ Serial.println("cry play before");
+ player.playOne(mp3name[2]);
+ Serial.println("cry play after");
+ }
 
 bool bigMovement(){
   return false;
@@ -140,13 +156,11 @@ bool isMoving(){
 
   curr = x + y + z;
   bool temp = (curr - prev) > 4;
+//  Serial.print(prev);
+//  Serial.print(" - ");
+//  Serial.print(curr);
+//  Serial.print(" - ");
+//  Serial.println(curr - prev);
   prev = curr;
-
-  Serial.print(curr);
-  Serial.print(" - ");
-  Serial.print(prev);
-  Serial.print(" - ");
-  Serial.println(x + y + z - prev);
-
   return temp;
 }
