@@ -40,7 +40,7 @@ void setup(){
 void loop(){
   time += 1;
   shake = isMoving();
-  
+
   Serial.print("State: ");
   Serial.print(state);
   Serial.print(" - Shake: ");
@@ -74,23 +74,8 @@ void state_machine_run()
         baby_cry();
         state = CRY;
       }
-      if(shake){
-        state = CALM_MOVING;
-      }
-      if(bigMovement()){
-        baby_cry();
-        state = CRY;
-      }
-      break;
-
-    case CALM_MOVING:
-      if(!shake){
-        baby_calm();
-        state = CALM;
-      }
-      if(time > CALM_MOVING_TIME){
-        baby_mute();
-        state = MUTE;
+      if(shake && time > 0){
+        time = time - 10;
       }
       if(bigMovement()){
         baby_cry();
@@ -104,25 +89,11 @@ void state_machine_run()
         baby_mute();
         state = MUTE;
       }
-      if(shake){
-        state = CRY_MOVING;
+      if(shake && time > 0){){
+        time = time - 10;
       }
       break;
 
-    case CRY_MOVING:
-      if(!isMoving()){
-        baby_cry();
-        state = CRY;
-      }
-      if(time > CRY_MOVING_TIME){
-        baby_calm();
-        state = CALM_MOVING;
-      }
-      if(bigMovement()){
-        baby_cry();
-        state = CRY;
-      }
-      break;
   }
 }
 
