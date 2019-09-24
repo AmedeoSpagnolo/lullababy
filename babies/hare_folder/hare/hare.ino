@@ -9,8 +9,9 @@ char mp3name[3][30] = {"silence.mp3","light1.mp3","hard1.mp3"};
 long x = 0;
 long y = 0;
 long z = 0;
+long curr = 0;
 long prev = 0;
-long shake = 0;
+bool shake;
 
 void state_machine_run(bool shake);
 void baby_mute();
@@ -37,14 +38,14 @@ void setup(){
 
 void loop(){
   time += 1;
-  bool shake = isMoving();
-
-  Serial.print("State: ");
-  Serial.print(state);
-  Serial.print(" - Shake: ");
-  Serial.print(shake);
-  Serial.print(" - Time: ");
-  Serial.println(time);
+  shake = isMoving();
+//
+//  Serial.print("State: ");
+//  Serial.print(state);
+//  Serial.print(" - Shake: ");
+//  Serial.print(shake);
+//  Serial.print(" - Time: ");
+//  Serial.println(time);
   player.play();
 
   state_machine_run(shake);
@@ -129,14 +130,23 @@ bool isMoving(){
 
   //read value 50 times and output the average
   for (i=0 ; i < 50 ; i++) {
-    x = x + analogRead(3) ; // Ｘ
-    y = y + analogRead(4) ; // Ｙ
-    z = z + analogRead(5) ; // Ｚ
+    x = x + analogRead(3);
+    y = y + analogRead(4);
+    z = z + analogRead(5);
   }
-  x = x / 50 ;
-  y = y / 50 ;
-  z = z / 50 ;
-  shake = (x + y + z - prev) > 4;
-  prev = x + y + z;
-  return shake;
+  x = x / 50;
+  y = y / 50;
+  z = z / 50;
+
+  curr = x + y + z;
+  bool temp = (curr - prev) > 4;
+  prev = curr;
+
+  Serial.print(curr);
+  Serial.print(" - ");
+  Serial.print(prev);
+  Serial.print(" - ");
+  Serial.println(x + y + z - prev);
+
+  return temp;
 }
