@@ -40,7 +40,8 @@ void setup(){
   player.begin();
   player.keyDisable();
   player.setPlayMode(PM_REPEAT_ONE);
-  player.setVolume(0x00);
+  player.setVolume(0xfe);
+  player.playOne(mp3name[2]);
   _time_to_cry      = map(EASY_TO_CRY, 0, 10, 20, 100);
   _time_to_speak    = _time_to_cry - map(WARNING_BEFORE_CRY, 0, 10, 10, 20);
   _shock_increment  = map(SHOCK_SENSITIVITY, 0, 10, 2, 20);
@@ -53,11 +54,11 @@ void setup(){
   Serial.print(" - _max_crying_time: ");  Serial.println(_max_crying_time);
 
   // temp values for debug
-  _time_to_cry      = 20;
-  _time_to_speak    = 10;
-  _shock_increment  = 12;
-  _shake_reduction  = 5;
-  _max_crying_time  = 30;
+//  _time_to_cry      = 20;
+//  _time_to_speak    = 10;
+//  _shock_increment  = 12;
+//  _shake_reduction  = 5;
+//  _max_crying_time  = 30;
 }
 
 void loop(){
@@ -146,13 +147,13 @@ bool isMoving(){
 }
 
 void baby_mute(){
-  player.playOne(mp3name[0]);
+  player.setVolume(0xfe);
 }
 
 void baby_speak(){
-  player.playOne(mp3name[1]);
+  player.setVolume(0x6e);
 }
 
 void baby_cry(){
-  player.playOne(mp3name[2]);
+  player.setVolume(0x00);
 }
