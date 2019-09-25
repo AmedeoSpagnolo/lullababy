@@ -21,9 +21,13 @@ void baby_cry();
 bool isMoving();
 
 int time = 0;
-int MAX_MUTE = 50;
-int MAX_CALM = 50;
-int MAX_CRY  = 500;
+int MAX_MUTE      = 50;
+int MAX_CALM      = 50;
+int MAX_CRY       = 500;
+int AFTER_SHOCK   = 40;
+int MUTE_TO_CALM  = 10;  
+int CALM_TO_CRY   = 10;
+int CRY_TO_CALM   = 40;  
 
 uint8_t state = MUTE;
 
@@ -64,12 +68,12 @@ void state_machine_run()
   {
     case MUTE:
       if(shock){
-        time = 40;
+        time = AFTER_SHOCK;
         baby_cry();
         state = CRY;
       }
       if(time > MAX_MUTE){
-        time = 0;
+        time = MUTE_TO_CALM;
         baby_calm();
         state = CALM;
       }
@@ -77,12 +81,12 @@ void state_machine_run()
 
     case CALM:
       if(shock){
-        time = 40;
+        time = AFTER_SHOCK;
         baby_cry();
         state = CRY;
       }
       if(time > MAX_CALM){
-        time = 0;
+        time = CALM_TO_CRY;
         baby_cry();
         state = CRY;
       }
@@ -100,12 +104,11 @@ void state_machine_run()
         state = MUTE;
       }
       if(time < 0){
-        time = 40;
+        time = CRY_TO_CALM;
         baby_calm();
         state = CALM;
       }
       break;
-
   }
 }
 
