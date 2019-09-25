@@ -23,7 +23,7 @@ bool isMoving();
 int time = 0;
 int MAX_MUTE      = 50;
 int MAX_CALM      = 50;
-int MAX_CRY       = 500;
+int MAX_CRY       = 50;
 int AFTER_SHOCK   = 40;
 int MUTE_TO_CALM  = 10;  
 int CALM_TO_CRY   = 10;
@@ -38,6 +38,7 @@ void setup(){
   player.setPlayMode(PM_REPEAT_ONE);
   player.playOne(mp3name[0]);
   player.setVolume(0x00);
+  
 }
 
 void loop(){
@@ -141,7 +142,7 @@ bool isMoving(){
   z = z / 50;
   curr = x + y + z;
   bool moving = (curr - prev) > 4;
-  if ((curr - prev) > 500) shock = true;
+//  if ((curr - prev) > 500) shock = true;
   prev = curr;
   return moving;
 }
