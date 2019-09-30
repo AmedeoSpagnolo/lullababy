@@ -84,7 +84,7 @@ void setup(){
 
   setSpeakingPeriod();
   setMutePeriod();
-  setMutePeriod();
+  setMutePeriod();//put at end so that printPeriod becomes first period
   //_time_to_cry      = map(EASY_TO_CRY, 0, 10, 5000, 10000);
   //  _time_to_speak    = _time_to_cry - map(WARNING_BEFORE_CRY, 0, 10, 10, 20);
 
@@ -113,17 +113,22 @@ void setup(){
 void loop(){
   //shake = isMoving();
   updateTime();
-  Serial.print("State:");
-  Serial.print(state);
-  Serial.print("Current Time is:");
-  Serial.print(currentMillis);
-  Serial.print("ms Start Time is:");
-  Serial.print(startMillis);
-  Serial.print("ms Time Elapsed is: ");
-  Serial.print(timeElapsed);
-  Serial.print("ms Current Period is: ");
-  Serial.print(printPeriod);
-  Serial.println("ms");
+  shake = isMoving();
+//  Serial.print("State:");
+//  Serial.print(state);
+//  Serial.print("Current Time is:");
+//  Serial.print(currentMillis);
+//  Serial.print("ms Start Time is:");
+//  Serial.print(startMillis);
+//  Serial.print("ms Time Elapsed is: ");
+//  Serial.print(timeElapsed);
+//  Serial.print("ms Current Period is: ");
+//  Serial.print(printPeriod);
+//  Serial.print("ms");
+//  Serial.print(" ");
+//  Serial.print(shake);
+
+
   player.play();
   state_machine_run();
 }
@@ -138,11 +143,12 @@ void state_machine_run()
         state = SPEAK;
         setSpeakingPeriod();
         startMillis = millis();
+      } else if(shock){
+        baby_cry();
+        state = CRY;
+        setCryingPeriod();
+        startMillis = millis();
       }
-      // if(timeElapsed > _period){
-      //   baby_cry();
-      //   state = CRY;
-      // }
       break;
 
     case SPEAK:
@@ -153,6 +159,11 @@ void state_machine_run()
       //   startMillis = millis();
       // }
       if(timeElapsed > speakingPeriod){
+        baby_cry();
+        state = CRY;
+        setCryingPeriod();
+        startMillis = millis();
+      } else if(shock){
         baby_cry();
         state = CRY;
         setCryingPeriod();
@@ -181,6 +192,7 @@ bool isMoving(){
   long x = 0;
   long y = 0;
   long z = 0;
+  long delta;
   shock = false;
   //read value 50 times and output the average
   for (i=0 ; i < 50 ; i++) {
@@ -192,8 +204,15 @@ bool isMoving(){
   y = y / 50;
   z = z / 50;
   curr = x + y + z;
-  bool moving = (curr - prev) > 4;
-  if ((curr - prev) > 500) shock = true;
+  delta = abs(curr-prev);
+  Serial.print("the Movement value is");
+  Serial.print(delta);
+  bool moving = (delta) > 4;
+  if (delta > 250){
+  shock= true;
+  }
+  Serial.print(" shock");
+  Serial.println(shock);
   prev = curr;
   return moving;
 }
