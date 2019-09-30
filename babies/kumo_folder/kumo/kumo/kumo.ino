@@ -2,6 +2,9 @@
 #include <SPI.h>
 #include <arduino.h>
 #include <MusicPlayer.h>
+#include <Math.h>
+#include "kumoParam.h"
+
 
 enum state_enum {MUTE,SPEAK,CRY};
 char mp3name[3][15] = {"a.mp3","b.mp3","c.mp3"};
@@ -13,27 +16,54 @@ long curr = 0;
 long prev = 0;
 bool isMoving();
 
-int _time_to_cry;
-int _time_to_speak;
-int _shock_increment;
-int _shake_reduction;
-int _max_crying_time;
+//time counter
+//int t = 0;
+
+unsigned long startMillis;
+unsigned long currentMillis;
+unsigned long timeElapsed;
+unsigned long mutePeriod;
+unsigned long speakingPeriod;
+unsigned long cryingPeriod;
+unsigned long printPeriod;
+
+
+//bounds
+unsigned long MAX_CRYING_PERIOD = 10000;
+unsigned long MIN_CRYING_PERIOD = 6000;
+unsigned long MAX_SPEAKING_PERIOD = 10000;
+unsigned long MIN_SPEAKING_PERIOD= 6000;
+unsigned long MAX_MUTE_PERIOD = 10000;
+unsigned long MIN_MUTE_PERIOD= 6000;
+
+unsigned long MAX_SHOCK_SENSITIVITY = 1000;
+unsigned long MIN_SHOCK_SENSITIVITY = 999;
+unsigned long MAX_SHAKE_EFFECTIVENESS = 1000;
+unsigned long MIN_SHAKE_EFFECTIVENESS = 999;
+
+
+
+// unsigned long _time_to_cry;
+// unsigned long _time_to_speak;
+unsigned long _shock_increment;
+unsigned long _shake_reduction;
+unsigned long _max_crying_time;
 
 bool shake = false;
 bool shock = false;
 
-int t = 0;
-int EASY_TO_CRY         = 8;  // 0 - 10
-int WARNING_BEFORE_CRY  = 5;  // 0 - 10
-int SHOCK_SENSITIVITY   = 6;  // 0 - 10
-int SHAKE_EFFECTIVENESS = 5;  // 0 - 10
-int MAX_CRYING_TIME     = 5;  // 0 - 10
-
 uint8_t state = MUTE;
+
+//functions
 
 void baby_speak();
 void baby_mute();
 void baby_cry();
+unsigned long setPeriod(unsigned long minPeriod, unsigned long maxPeriod);
+void setMutePeriod();
+void setSpeakingPeriod();
+void setCryingPeriod();
+
 
 void setup(){
   Serial.begin(9600);
@@ -42,16 +72,35 @@ void setup(){
   player.setPlayMode(PM_REPEAT_ONE);
   player.setVolume(0xfe);
   player.playOne(mp3name[2]);
-  _time_to_cry      = map(EASY_TO_CRY, 0, 10, 20, 100);
-  _time_to_speak    = _time_to_cry - map(WARNING_BEFORE_CRY, 0, 10, 10, 20);
-  _shock_increment  = map(SHOCK_SENSITIVITY, 0, 10, 2, 20);
-  _shake_reduction  = map(SHAKE_EFFECTIVENESS, 0, 10, 2, 5);
-  _max_crying_time  = map(MAX_CRYING_TIME, 0, 10, 100, 600);
-  Serial.print("time_to_cry: ");          Serial.print(_time_to_cry);
-  Serial.print(" - time_to_speak: ");     Serial.print(_time_to_speak);
-  Serial.print(" - shock_increment: ");   Serial.print(_shock_increment);
-  Serial.print(" - shake_reduction: ");   Serial.print(_shake_reduction);
-  Serial.print(" - _max_crying_time: ");  Serial.println(_max_crying_time);
+  // _time_to_cry      = map(EASY_TO_CRY, 0, 10, 5000, 10000);
+  // _time_to_speak    = _time_to_cry - map(WARNING_BEFORE_CRY, 0, 10, 10, 20);
+  // _shock_increment  = map(SHOCK_SENSITIVITY, 0, 10, 2, 20);
+  // _shake_reduction  = map(SHAKE_EFFECTIVENESS, 0, 10, 2, 5);
+  // _max_crying_time  = map(MAX_CRYING_TIME, 0, 10, 100, 600);
+
+  //set time
+  currentMillis = millis();
+  startMillis = currentMillis;
+
+  setSpeakingPeriod();
+  setMutePeriod();
+  setMutePeriod();
+  //_time_to_cry      = map(EASY_TO_CRY, 0, 10, 5000, 10000);
+  //  _time_to_speak    = _time_to_cry - map(WARNING_BEFORE_CRY, 0, 10, 10, 20);
+
+  // _shock_increment  = 1000;
+  // _shake_reduction  = 1000;
+
+  //_shock_increment  = random(MIN_SHOCK_SENSITIVITY, MAX_SHOCK_SENSITIVITY);
+  //_shake_reduction  = random(MIN_SHAKE_EFFECTIVENESS, MAX_SHAKE_EFFECTIVENESS);
+
+
+  //_max_crying_time  = map(MAX_CRYING_TIME, 0, 10, 100, 600);
+  // Serial.print("time_to_cry: ");          Serial.print(_time_to_cry);
+  // Serial.print(" - time_to_speak: ");     Serial.print(_time_to_speak);
+  // Serial.print(" - shock_increment: ");   Serial.print(_shock_increment);
+  // Serial.print(" - shake_reduction: ");   Serial.print(_shake_reduction);
+  // Serial.print(" - _max_crying_time: ");  Serial.println(_max_crying_time);
 
   // temp values for debug
 //  _time_to_cry      = 20;
@@ -62,26 +111,21 @@ void setup(){
 }
 
 void loop(){
-  shake = isMoving();
-  if (t > _max_crying_time){
-    t = 0;
-  } else if (shake && !shock){
-    t -= _shake_reduction;
-  } else if (shock) {
-    t += _shock_increment;
-  } else {
-    t += 1;
-  }
-
+  //shake = isMoving();
+  updateTime();
+  Serial.print("State:");
+  Serial.print(state);
+  Serial.print("Current Time is:");
+  Serial.print(currentMillis);
+  Serial.print("ms Start Time is:");
+  Serial.print(startMillis);
+  Serial.print("ms Time Elapsed is: ");
+  Serial.print(timeElapsed);
+  Serial.print("ms Current Period is: ");
+  Serial.print(printPeriod);
+  Serial.println("ms");
   player.play();
   state_machine_run();
-
-  Serial.print(state);
-  Serial.print(" - Shake: "); Serial.print(shake);
-  Serial.print(" - Shock: "); Serial.print(shock);
-  Serial.print(" - Time: ");  Serial.println(t);
-
-  delay(150);
 }
 
 void state_machine_run()
@@ -89,36 +133,44 @@ void state_machine_run()
   switch(state)
   {
     case MUTE:
-      if(t > _time_to_speak && t < _time_to_cry){
+      if(timeElapsed > mutePeriod){
         baby_speak();
         state = SPEAK;
+        setSpeakingPeriod();
+        startMillis = millis();
       }
-      if(t > _time_to_cry){
-        baby_cry();
-        state = CRY;
-      }
+      // if(timeElapsed > _period){
+      //   baby_cry();
+      //   state = CRY;
+      // }
       break;
 
     case SPEAK:
-      if(t < _time_to_speak){
-        baby_mute();
-        state = MUTE;
-      }
-      if(t > _time_to_cry){
+      // if(timeElapsed < speakingPeriod){
+      //   baby_mute();
+      //   state = MUTE;
+      //   setMutePeriod();
+      //   startMillis = millis();
+      // }
+      if(timeElapsed > speakingPeriod){
         baby_cry();
         state = CRY;
+        setCryingPeriod();
+        startMillis = millis();
       }
       break;
 
     case CRY:
-      if(t < _time_to_speak){
+      if(timeElapsed > cryingPeriod){
         baby_mute();
         state = MUTE;
+        setMutePeriod();
+        startMillis = millis();
       }
-      if(t > _time_to_speak && t < _time_to_cry){
-        baby_speak();
-        state = SPEAK;
-      }
+      // if(timeElapsed < ){
+      //   baby_speak();
+      //   state = SPEAK;
+      // }
       break;
 
   }
@@ -156,4 +208,35 @@ void baby_speak(){
 
 void baby_cry(){
   player.setVolume(0x00);
+}
+
+void updateTime(){
+  currentMillis = millis();
+  timeElapsed = currentMillis - startMillis;
+}
+
+unsigned long setPeriod(unsigned long minPeriod, unsigned long maxPeriod){
+  unsigned long output_duration;
+  output_duration = round(random(minPeriod,maxPeriod));
+  return output_duration;
+  // Serial.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+  // Serial.print("Time to swith period!");
+  // Serial.print("the new period is ");
+  // Serial.println(period);
+  // Serial.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+  // startMillis = millis();
+
+}
+
+void setMutePeriod(){
+  mutePeriod = setPeriod(MIN_MUTE_PERIOD,MAX_MUTE_PERIOD);
+  printPeriod = mutePeriod;
+}
+void setSpeakingPeriod(){
+  speakingPeriod = setPeriod(MIN_SPEAKING_PERIOD,MAX_SPEAKING_PERIOD);
+  printPeriod = speakingPeriod;
+}
+void setCryingPeriod(){
+  cryingPeriod = setPeriod(MIN_CRYING_PERIOD, MAX_CRYING_PERIOD);
+  printPeriod = cryingPeriod;
 }
