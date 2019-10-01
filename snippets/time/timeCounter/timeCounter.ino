@@ -18,15 +18,20 @@ void loop() {
   // put your main code here, to run repeatedly:
   currentMillis = millis();
   timeElapsed = currentMillis - startMillis;
-  Serial.print("Current Time is:");
-  Serial.print(currentMillis);
-  Serial.print("ms Start Time is:");
+  Serial.print("(");
   Serial.print(startMillis);
-  Serial.print("ms Time Elapsed is: ");
-  Serial.print(timeElapsed);
-  Serial.print("ms Current Period is: ");
-  Serial.print(period);
-  Serial.println("ms");
+  Serial.print(" - ");
+  Serial.print(startMillis + period);
+  Serial.print(")");
+  Serial.print(": ");
+  Serial.println(currentMillis);
+//  Serial.println("ms Start Time is:");
+
+  
+//  Serial.print(timeElapsed);
+//  Serial.print("ms Current Period is: ");
+
+//  Serial.println("ms");
 
   if (timeElapsed >= period){
     period = setPeriod(5000,10000);

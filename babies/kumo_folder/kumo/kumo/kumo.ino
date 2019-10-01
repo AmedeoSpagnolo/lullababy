@@ -28,7 +28,7 @@ unsigned long cryingPeriod;
 unsigned long printPeriod;
 
 
-//bounds
+//period bounds
 unsigned long MAX_CRYING_PERIOD = 10000;
 unsigned long MIN_CRYING_PERIOD = 6000;
 unsigned long MAX_SPEAKING_PERIOD = 10000;
@@ -53,16 +53,20 @@ bool shake = false;
 bool shock = false;
 
 uint8_t state = MUTE;
+bool DEBUG = true;
 
 //functions
 
-void baby_speak();
-void baby_mute();
-void baby_cry();
+void baby_enter_speak();
+void baby_enter_mute();
+void baby_enter_cry();
 unsigned long setPeriod(unsigned long minPeriod, unsigned long maxPeriod);
 void setMutePeriod();
 void setSpeakingPeriod();
 void setCryingPeriod();
+void baby_exit_speak();
+void baby_exit_mute();
+void baby_exit_cry();
 
 
 void setup(){
@@ -114,20 +118,22 @@ void loop(){
   //shake = isMoving();
   updateTime();
   shake = isMoving();
-//  Serial.print("State:");
-//  Serial.print(state);
-//  Serial.print("Current Time is:");
-//  Serial.print(currentMillis);
-//  Serial.print("ms Start Time is:");
-//  Serial.print(startMillis);
-//  Serial.print("ms Time Elapsed is: ");
-//  Serial.print(timeElapsed);
-//  Serial.print("ms Current Period is: ");
-//  Serial.print(printPeriod);
-//  Serial.print("ms");
-//  Serial.print(" ");
-//  Serial.print(shake);
 
+  if (DEBUG){
+   Serial.print("State:");
+   Serial.print(state);
+   Serial.print("Current Time is:");
+   Serial.print(currentMillis);
+   Serial.print("ms Start Time is:");
+   Serial.print(startMillis);
+   Serial.print("ms Time Elapsed is: ");
+   Serial.print(timeElapsed);
+   Serial.print("ms Current Period is: ");
+   Serial.print(printPeriod);
+   Serial.print("ms");
+   Serial.print(" ");
+   Serial.print(shake);
+}
 
   player.play();
   state_machine_run();
@@ -138,50 +144,31 @@ void state_machine_run()
   switch(state)
   {
     case MUTE:
-      if(timeElapsed > mutePeriod){
-        baby_speak();
-        state = SPEAK;
-        setSpeakingPeriod();
-        startMillis = millis();
+      if(timeElapsed > mutePeriod && !shock){
+        baby_exit_mute();
+        baby_enter_speak();
       } else if(shock){
-        baby_cry();
-        state = CRY;
-        setCryingPeriod();
-        startMillis = millis();
+        baby_exit_mute();
+        baby_enter_cry();
+      } else if (!shock && isMoving()){
+        mutePeriod += 100; //add SHAKE_EFFECTIVENESS
       }
       break;
 
     case SPEAK:
-      // if(timeElapsed < speakingPeriod){
-      //   baby_mute();
-      //   state = MUTE;
-      //   setMutePeriod();
-      //   startMillis = millis();
-      // }
+      baby_while_speak();
       if(timeElapsed > speakingPeriod){
-        baby_cry();
-        state = CRY;
-        setCryingPeriod();
-        startMillis = millis();
-      } else if(shock){
-        baby_cry();
-        state = CRY;
-        setCryingPeriod();
-        startMillis = millis();
-      }
+        baby_exit_speak();
+        baby_enter_cry();
+      } if else
       break;
 
     case CRY:
+      baby_while_cry();
       if(timeElapsed > cryingPeriod){
-        baby_mute();
-        state = MUTE;
-        setMutePeriod();
-        startMillis = millis();
+        baby_exit_cry();
+        baby_enter_mute();
       }
-      // if(timeElapsed < ){
-      //   baby_speak();
-      //   state = SPEAK;
-      // }
       break;
 
   }
@@ -217,15 +204,23 @@ bool isMoving(){
   return moving;
 }
 
-void baby_mute(){
+void baby_enter_mute(){
+  startMillis = millis();
   player.setVolume(0xfe);
+  mutePeriod = round(random(MIN_MUTE_PERIOD,MAX_MUTE_PERIOD));
 }
 
-void baby_speak(){
+void baby_enter_speak(){
+  state = SPEAK;
+  startMillis = millis();
+  speakingPeriod = round(random(MIN_SPEAKING_PERIOD,MAX_SPEAKING_PERIOD);
   player.setVolume(0x6e);
 }
 
-void baby_cry(){
+void baby_enter_cry(){
+  state = CRY;
+  startMillis = millis();
+  cryingPeriod = round(random(MIN_CRYING_PERIOD, MAX_CRYING_PERIOD);
   player.setVolume(0x00);
 }
 
@@ -234,28 +229,57 @@ void updateTime(){
   timeElapsed = currentMillis - startMillis;
 }
 
-unsigned long setPeriod(unsigned long minPeriod, unsigned long maxPeriod){
-  unsigned long output_duration;
-  output_duration = round(random(minPeriod,maxPeriod));
-  return output_duration;
-  // Serial.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-  // Serial.print("Time to swith period!");
-  // Serial.print("the new period is ");
-  // Serial.println(period);
-  // Serial.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-  // startMillis = millis();
+void baby_exit_speak(){
+
 
 }
+void baby_exit_mute(){
 
-void setMutePeriod(){
-  mutePeriod = setPeriod(MIN_MUTE_PERIOD,MAX_MUTE_PERIOD);
-  printPeriod = mutePeriod;
+
 }
-void setSpeakingPeriod(){
-  speakingPeriod = setPeriod(MIN_SPEAKING_PERIOD,MAX_SPEAKING_PERIOD);
-  printPeriod = speakingPeriod;
+void baby_exit_cry(){
+  if (DEBUG){
+     Serial.println("baby_exit_cry");
+  }
 }
-void setCryingPeriod(){
-  cryingPeriod = setPeriod(MIN_CRYING_PERIOD, MAX_CRYING_PERIOD);
-  printPeriod = cryingPeriod;
+void baby_while_cry(){
+  // every loop change volume
+  if(timeElapsed < cryingPeriod - 1000){
+    baby_cry_normal();
+ } else if(timeElapsed > cryingPeriod - 1000){
+   baby_cry_softer();
+ }
+
+ // every loop update cryingPeriod
+ if (!shock && isMoving()){
+   cryingPeriod -= 1000; //add SHAKE_EFFECTIVENESS
+ } else if (shock){
+   cryingPeriod += 10000; //add SHAKE_EFFECTIVENESS
+ }
 }
+
+
+// unsigned long setPeriod(unsigned long minPeriod, unsigned long maxPeriod){
+//   unsigned long output_duration;
+//   output_duration = round(random(minPeriod,maxPeriod));
+//   return output_duration;
+//   // Serial.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+//   // Serial.print("Time to swith period!");
+//   // Serial.print("the new period is ");
+//   // Serial.println(period);
+//   // Serial.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+//   // startMillis = millis();
+//
+// }
+
+// void setMutePeriod(){
+//
+// }
+// void setSpeakingPeriod(){
+//   speakingPeriod = round(random
+//   printPeriod = speakingPeriod;
+// }
+// void setCryingPeriod(){
+//   cryingPeriod = setPeriod
+//   printPeriod = cryingPeriod;
+// }
