@@ -29,17 +29,12 @@ unsigned long printPeriod;
 
 
 //period bounds
-unsigned long MAX_CRYING_PERIOD = 10000;
-unsigned long MIN_CRYING_PERIOD = 6000;
-unsigned long MAX_SPEAKING_PERIOD = 10000;
-unsigned long MIN_SPEAKING_PERIOD= 6000;
-unsigned long MAX_MUTE_PERIOD = 10000;
-unsigned long MIN_MUTE_PERIOD= 6000;
+unsigned long CRYING_PERIOD         = 8000;
+unsigned long SPEAK_PERIOD          = 8000;
+unsigned long CRY_PERIOD            = 8000;
 
-unsigned long MAX_SHOCK_SENSITIVITY = 1000;
-unsigned long MIN_SHOCK_SENSITIVITY = 999;
-unsigned long MAX_SHAKE_EFFECTIVENESS = 1000;
-unsigned long MIN_SHAKE_EFFECTIVENESS = 999;
+unsigned long SHOCK_SENSITIVITY     = 1000;
+unsigned long SHAKE_EFFECTIVENESS   = 1000;
 
 
 
@@ -207,21 +202,25 @@ bool isMoving(){
 void baby_enter_mute(){
   startMillis = millis();
   player.setVolume(0xfe);
-  mutePeriod = round(random(MIN_MUTE_PERIOD,MAX_MUTE_PERIOD));
+  mutePeriod = get_random_period(MUTE_PERIOD);
 }
 
 void baby_enter_speak(){
   state = SPEAK;
   startMillis = millis();
-  speakingPeriod = round(random(MIN_SPEAKING_PERIOD,MAX_SPEAKING_PERIOD);
   player.setVolume(0x6e);
+  speakingPeriod = get_random_period(SPEAK_PERIOD);
 }
 
 void baby_enter_cry(){
   state = CRY;
   startMillis = millis();
-  cryingPeriod = round(random(MIN_CRYING_PERIOD, MAX_CRYING_PERIOD);
   player.setVolume(0x00);
+  cryingPeriod = get_random_period(CRY_PERIOD);
+}
+
+void get_random_period(long av){
+  return round(random(av - av*3/10, av + av*3/10));
 }
 
 void updateTime(){
