@@ -21,14 +21,15 @@ unsigned long time_elapsed;
 
 long prev; //Accelerometer
 
-int centifeels; //new SI metric for feelings
+int millifeels; //new SI metric for feelings
 // general reference range from 0 to 1000.
-// 0 - 25: RAWR
-// 25 - 50: BOO
-// 50 - 75: meh
-// 75 - 100: Playful
-
-unsigned long [];
+// 0 - 250: RAWR
+// 250 - 500: BOO
+// 500 - 750: meh
+// 750 - 1000: Playful
+// 0_______________________________________________1000
+// (ToT)         (T_T)           (;_;)             ('U')
+unsigned long wakeup_intervals [];
 
 uint8_t state = AWAKE; //initial state
 
@@ -43,24 +44,23 @@ bool shake = false;
 bool shock = false;
 
 void check_physical_love(); //previously bool isMoving()
+void update_feelings(); //use both in awake and asleep
 
 void setup(){
   Serial.begin(9600);
   current_time = millis(); // set timer
   start_time = current_time;
-  emotional_value = 80; //set state to be 40
+  emotional_value = 80; //set state to be 80
   prev = 0;
 }
 
 void loop(){
-  updateTime();
+  updateTime(); // figure out time stamp
+  check_physical_love(); //update shake and shock
   state_machine();
-
-  //delay(80);
-
 }
 
-void state_machine_run(){
+void state_machine_run(){ //Logic for Awake and Asleep states
   switch(state){
     case AWAKE:
       status_awake_loop();
@@ -101,18 +101,11 @@ return true;
 void status_awake_loop(){
   // led pulse normal, Add or subtract from emotional ,indicator
   // bad - good indicatior results to high - zero volume
-  check_physical_love(); // update shake and shock values
-
-  if (shake && !shock){
 
 
-  } else if (){
 
 
-  }
 
-
-  return true;
 }
 
 void status_awake_exit(){
@@ -134,8 +127,9 @@ void status_asleep_loop(){
   return true;
 }
 
-//accelerometer
 
+
+//accelerometer. Updates Shock and Shake. prev. isMoving().
 void check_physical_love(){
   int i; //initialize local variables
   long curr;
@@ -163,12 +157,27 @@ void check_physical_love(){
   shake = isShake;
   shock = isShock;
   prev = curr
-
+  //debug
   if (ACCELEROMETER_DEBUG){
   Serial.print("the Movement value is");
   Serial.print(delta);
   Serial.print(" shock");
   Serial.println(shock);
+  }
 }
 
+void update_feelings(){
+  if (shake && !shock){
+    millifeels += 1; //feelings are obviously linear
+    if (millifeels > 999){
+      millifeels = 995  // i feel like it might get stuck 999
+    }
+  } else if (!shake && !shock){
+    millifeels -= 1;
+    if (millifeels < 0){
+      millifeels = 5 // i feel like it might get stuck if 0
+    }
+  } else if (shock){ //if shock, make it in cry state
+    millifeels = 15
+  }
 }
