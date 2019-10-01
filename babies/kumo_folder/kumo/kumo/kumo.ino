@@ -62,7 +62,9 @@ void setCryingPeriod();
 void baby_exit_speak();
 void baby_exit_mute();
 void baby_exit_cry();
-
+void baby_while_speak();
+void baby_while_mute();
+void baby_while_cry();
 
 void setup(){
   Serial.begin(9600);
@@ -141,7 +143,7 @@ void state_machine_run()
     case MUTE:
       if(timeElapsed > mutePeriod && !shock){
         baby_exit_mute();
-        baby_enter_speak();
+        baby_enter_speak();x d
       } else if(shock){
         baby_exit_mute();
         baby_enter_cry();
@@ -155,7 +157,7 @@ void state_machine_run()
       if(timeElapsed > speakingPeriod){
         baby_exit_speak();
         baby_enter_cry();
-      } if else
+      }
       break;
 
     case CRY:
@@ -191,7 +193,7 @@ bool isMoving(){
   Serial.print(delta);
   bool moving = (delta) > 4;
   if (delta > 250){
-  shock= true;
+    shock= true;
   }
   Serial.print(" shock");
   Serial.println(shock);
@@ -241,6 +243,7 @@ void baby_exit_cry(){
      Serial.println("baby_exit_cry");
   }
 }
+
 void baby_while_cry(){
   // every loop change volume
   if(timeElapsed < cryingPeriod - 1000){
@@ -248,7 +251,6 @@ void baby_while_cry(){
  } else if(timeElapsed > cryingPeriod - 1000){
    baby_cry_softer();
  }
-
  // every loop update cryingPeriod
  if (!shock && isMoving()){
    cryingPeriod -= 1000; //add SHAKE_EFFECTIVENESS
@@ -256,6 +258,45 @@ void baby_while_cry(){
    cryingPeriod += 10000; //add SHAKE_EFFECTIVENESS
  }
 }
+
+void baby_while_speak(){
+  // change state to Crying
+   if (shock){
+     baby_exit_speak();
+     baby_enter_cry();//add SHAKE_EFFECTIVENESS
+ } else if(!shock && isMoving()){
+   //add reward_ check with Ame
+ }
+}
+
+void baby_while_mute(){
+ // every loop update cryingPeriod
+ if (!shock && isMoving()){
+   mute_Period -= 1000; //add SHAKE_EFFECTIVENESS
+ } else if (shock){
+   cryingPeriod += 10000; //add SHAKE_EFFECTIVENESS
+ }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // unsigned long setPeriod(unsigned long minPeriod, unsigned long maxPeriod){
