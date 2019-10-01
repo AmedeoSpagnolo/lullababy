@@ -28,7 +28,7 @@ int millifeels; //new SI metric for feelings
 // 500 - 750: meh
 // 750 - 1000: Playful
 // 0_______________________________________________1000
-// (ToT)         (T_T)           (;_;)             ('U')
+// (ToT)         (T_T)           (;_;)            ('U')
 unsigned long wakeup_intervals [];
 
 uint8_t state = AWAKE; //initial state
@@ -52,11 +52,19 @@ void setup(){
   start_time = current_time;
   emotional_value = 80; //set state to be 80
   prev = 0;
+
+  //music shield
+  player.begin();
+  player.keyDisable();
+  player.setPlayMode(PM_REPEAT_ONE);
+  player.setVolume(0xfe);
+  player.playOne(mp3name[2]);
 }
 
 void loop(){
   updateTime(); // figure out time stamp
   check_physical_love(); //update shake and shock
+  update_feelings();
   state_machine();
 }
 
@@ -99,13 +107,22 @@ return true;
 }
 
 void status_awake_loop(){
-  // led pulse normal, Add or subtract from emotional ,indicator
+  // led pulse normal,
   // bad - good indicatior results to high - zero volume
-
-
-
-
-
+  switch(millifeels){
+    case 0 ... 250:
+      player.setVolume(0x00); // 0
+      break;
+    case 251 ... 500:
+      player.setVolume(0x50); //80
+      break;
+    case 501 ... 750:
+      player.setVolume(0xa0); //160
+      break;
+    case 751 ... 1000:
+      player.setVolume(0xfe); //
+      break;
+  }
 }
 
 void status_awake_exit(){
