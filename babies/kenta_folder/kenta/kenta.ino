@@ -48,7 +48,6 @@ void update_feelings(); //use both in awake and asleep
 
 void setup(){
   Serial.begin(9600);
-<<<<<<< Updated upstream
   current_time = millis(); // set timer
   start_time = current_time;
   emotional_value = 80; //set state to be 80
@@ -198,13 +197,4 @@ void update_feelings(){
   } else if (shock){ //if shock, make it in cry state
     millifeels = 15
   }
-=======
-  Serial.println("asdadasd");
-}
-
-void loop(){
-  Serial.print("THIS ");
-  Serial.println(THIS);
-  delay(80);
->>>>>>> Stashed changes
 }
