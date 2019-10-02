@@ -51,25 +51,33 @@ void loop(){
       update_awake_feelings();
       switch (substate) {
         case A:
+          player.setVolume(0x00); // 0
           break;
         case B:
+          player.setVolume(0x50); // 80
           break;
         case C:
+          player.setVolume(0xa0); // 160
           break;
         case D:
+          player.setVolume(0xfe); // 254
           break;
       }
-      Serial.print(state_list[state]); Serial.print(" ");
-      Serial.print(kaoMoji_array[substate]); Serial.print(" ");
-      Serial.print(" - EmotionLevel: "); Serial.print(emotionLevel);
-      Serial.print(" - Substate: "); Serial.print(substate);
-      Serial.print(" - Shake: "); Serial.print(shake);
-      Serial.print(" - Shock: "); Serial.println(shock);
+      if (DEBUG){
+        Serial.print(state_list[state]); Serial.print(" ");
+        Serial.print(kaoMoji_array[substate]); Serial.print(" ");
+        Serial.print(" - EmotionLevel: "); Serial.print(emotionLevel);
+        Serial.print(" - Substate: "); Serial.print(substate);
+        Serial.print(" - Shake: "); Serial.print(shake);
+        Serial.print(" - Shock: "); Serial.println(shock);
+      }
       break;
     case ASLEEP:
       update_sleep_feelings();
-      Serial.print(state_list[state]);
-      Serial.print(" - Shock: "); Serial.println(shock);
+      if (DEBUG){
+        Serial.print(state_list[state]);
+        Serial.print(" - Shock: "); Serial.println(shock);
+      }
       break;
   }
   delay(50);
