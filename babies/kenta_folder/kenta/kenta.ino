@@ -5,6 +5,7 @@
 #include <Math.h>
 #include "param.h"
 #include "statemachine.h"
+#include "movement.h"
 
 char mp3name[3][15] = {"a.mp3","b.mp3","c.mp3"};
 char kaoMoji_array[5][20] = {"(ToT)","(T_T)","(;_;)","('U')"};
@@ -12,57 +13,48 @@ char* kaoMoji = kaoMoji_array[0];
 
 unsigned long birthday = millis();
 
-// Accelerometer
-long prev  = 0;
-bool shake = false;
-bool shock = false;
-
-// New SI metric for feelings
-// 0___________250___________500___________750___________1000
-//     (ToT)         (T_T)         (;_;)         ('U')
-//
 int emotionLevel = 80;
 
-// DEBUG
-bool DEBUG = false;
-bool ACCELEROMETER_DEBUG = false;
+int eye_right = 3;
+int eye_left  = 6;
 
-void check_physical_love();
-void update_awake_feelings();
-void update_sleep_feelings();
+// DEBUG
+bool DEBUG = true;
 
 void setup(){
   Serial.begin(9600);
-
-  //music shield
   player.begin();
   player.keyDisable();
   player.setPlayMode(PM_REPEAT_ONE);
   player.setVolume(0xfe);
   player.playOne(mp3name[2]);
+  pinMode(eye_right, OUTPUT);
+  pinMode(eye_left, OUTPUT);
 }
 
 void loop(){
-  check_physical_love(); //update shake and shock
+  player.play();
+  check_physical_love(); // Update shake and shock
   state_machine_run(birthday,emotionLevel,shake);
-
   switch(state){
     case AWAKE:
+      digitalWrite(eye_right, HIGH);
+      digitalWrite(eye_left, HIGH);
       update_awake_feelings();
-      switch (substate) {
-        case A:
-          player.setVolume(0x00); // 0
-          break;
-        case B:
-          player.setVolume(0x50); // 80
-          break;
-        case C:
-          player.setVolume(0xa0); // 160
-          break;
-        case D:
-          player.setVolume(0xfe); // 254
-          break;
-      }
+     switch (substate) {
+       case A:
+         player.setVolume(0x00); // 0
+         break;
+       case B:
+         player.setVolume(0x50); // 80
+         break;
+       case C:
+         player.setVolume(0xa0); // 160
+         break;
+       case D:
+         player.setVolume(0xfe); // 254
+         break;
+     }
       if (DEBUG){
         Serial.print(state_list[state]); Serial.print(" ");
         Serial.print(kaoMoji_array[substate]); Serial.print(" ");
@@ -73,7 +65,9 @@ void loop(){
       }
       break;
     case ASLEEP:
-      update_sleep_feelings();
+      digitalWrite(eye_right, LOW);
+      digitalWrite(eye_left, LOW);
+      player.setVolume(0xfe); // 254
       if (DEBUG){
         Serial.print(state_list[state]);
         Serial.print(" - Shock: "); Serial.println(shock);
@@ -81,39 +75,6 @@ void loop(){
       break;
   }
   delay(50);
-}
-
-//accelerometer. Updates Shock and Shake.
-void check_physical_love(){
-  int i;
-  long curr;
-  long delta;
-  long x = 0;
-  long y = 0;
-  long z = 0;
-
-//read value 50 times and output the average
-  for (i=0 ; i < 50 ; i++) {
-    x = x + analogRead(3);
-    y = y + analogRead(4);
-    z = z + analogRead(5);
-  }
-  x = (x / 50);   y = (y / 50);  z = (z / 50);
-  curr = x + y + z;
-  delta = abs(curr-prev); // compare with last sum(x,y,z)
-
-//update shake and shock and prev
-  shake = (delta > 4);
-  shock = (delta > 400);
-  prev = curr;
-
-  //debug
-  if (ACCELEROMETER_DEBUG){
-    Serial.print("the Movement value is");
-    Serial.print(delta);
-    Serial.print(" shock");
-    Serial.println(shock);
-  }
 }
 
 void update_awake_feelings(){
@@ -129,9 +90,5 @@ void update_awake_feelings(){
     }
   } else if (shock){ //if shock, make it in cry state
     emotionLevel = 15;
-  }
-}
-
-void update_sleep_feelings(){
   }
 }
