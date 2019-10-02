@@ -29,15 +29,15 @@ int millifeels; //new SI metric for feelings
 // 750 - 1000: Playful
 // 0_______________________________________________1000
 // (ToT)         (T_T)           (;_;)            ('U')
-unsigned long wakeup_intervals [];
+//unsigned long wakeup_intervals [];
 
 uint8_t state = AWAKE; //initial state
 
 
 //Booleans
 bool isAsleep = false;
-bool DEBUG = false
-bool ACCELEROMETER_DEBUG = false
+bool DEBUG = false;
+bool ACCELEROMETER_DEBUG = false;
 bool isTimeSleep();
 
 bool shake = false;
@@ -50,7 +50,7 @@ void setup(){
   Serial.begin(9600);
   current_time = millis(); // set timer
   start_time = current_time;
-  emotional_value = 80; //set state to be 80
+  millifeels = 80; //set state to be 80
   prev = 0;
 
   //music shield
@@ -88,8 +88,8 @@ void state_machine_run(){ //Logic for Awake and Asleep states
   }
 }
 
-//check time and schedule
-
+// Check time and schedule
+//
 void updateTime(){
   current_time = millis();
   time_elapsed = current_time - start_time;
@@ -100,8 +100,8 @@ bool isTimeToSleep(){
 }
 
 
-//awake functions
-
+// Awake functions
+//
 void status_awake_enter(){
 return true;
 }
@@ -165,21 +165,17 @@ void check_physical_love(){
   curr = x + y + z;
   delta = abs(curr-prev); // compare with last sum(x,y,z)
 
-  //is it shaking/shocking or nah?
-  bool isShake = (delta) > 4;
-  bool isShock = (delta) > 400;
-
   //update shake and shock and prev
-  //ASK AME IF ITS REDUNDANT
-  shake = isShake;
-  shock = isShock;
-  prev = curr
+  shake = (delta > 4);
+  shock = (delta > 400);
+  prev = curr;
+
   //debug
   if (ACCELEROMETER_DEBUG){
-  Serial.print("the Movement value is");
-  Serial.print(delta);
-  Serial.print(" shock");
-  Serial.println(shock);
+    Serial.print("the Movement value is");
+    Serial.print(delta);
+    Serial.print(" shock");
+    Serial.println(shock);
   }
 }
 
@@ -187,14 +183,14 @@ void update_feelings(){
   if (shake && !shock){
     millifeels += 1; //feelings are obviously linear
     if (millifeels > 999){
-      millifeels = 995  // i feel like it might get stuck 999
+      millifeels = 995;  // i feel like it might get stuck 999
     }
   } else if (!shake && !shock){
-    millifeels -= 1;
+    millifeels -= 4;
     if (millifeels < 0){
-      millifeels = 5 // i feel like it might get stuck if 0
+      millifeels = 5; // i feel like it might get stuck if 0
     }
   } else if (shock){ //if shock, make it in cry state
-    millifeels = 15
+    millifeels = 15;
   }
 }
