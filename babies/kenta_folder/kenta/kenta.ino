@@ -8,6 +8,7 @@
 
 char mp3name[3][15] = {"a.mp3","b.mp3","c.mp3"};
 char kaoMoji_array[5][20] = {"(ToT)","(T_T)","(;_;)","('U')"};
+char* kaoMoji = kaoMoji_array[0];
 
 unsigned long birthday = millis();
 
@@ -16,20 +17,19 @@ long prev  = 0;
 bool shake = false;
 bool shock = false;
 
-//    New SI metric for feelings
-//    0___________250___________500___________750___________1000
-//        (ToT)         (T_T)         (;_;)         ('U')
+// New SI metric for feelings
+// 0___________250___________500___________750___________1000
+//     (ToT)         (T_T)         (;_;)         ('U')
 //
 int emotionLevel = 80;
-char* kaoMoji = kaoMoji_array[0];
 
 // DEBUG
 bool DEBUG = false;
 bool ACCELEROMETER_DEBUG = false;
 
-void check_physical_love(); //previously bool isMoving()
-void update_awake_feelings(); 
-void update_sleep_feelings(); 
+void check_physical_love();
+void update_awake_feelings();
+void update_sleep_feelings();
 
 void setup(){
   Serial.begin(9600);
@@ -47,17 +47,27 @@ void loop(){
   state_machine_run(birthday,emotionLevel,shake);
 
   switch(state){
-    case AWAKE:  
-      update_awake_feelings(); 
-      Serial.print(state_list[state]); Serial.print(" "); 
-      Serial.print(kaoMoji_array[substate]); Serial.print(" "); 
+    case AWAKE:
+      update_awake_feelings();
+      switch (substate) {
+        case A:
+          break;
+        case B:
+          break;
+        case C:
+          break;
+        case D:
+          break;
+      }
+      Serial.print(state_list[state]); Serial.print(" ");
+      Serial.print(kaoMoji_array[substate]); Serial.print(" ");
       Serial.print(" - EmotionLevel: "); Serial.print(emotionLevel);
       Serial.print(" - Substate: "); Serial.print(substate);
       Serial.print(" - Shake: "); Serial.print(shake);
       Serial.print(" - Shock: "); Serial.println(shock);
       break;
-    case ASLEEP:  
-      update_sleep_feelings(); 
+    case ASLEEP:
+      update_sleep_feelings();
       Serial.print(state_list[state]);
       Serial.print(" - Shock: "); Serial.println(shock);
       break;
@@ -101,8 +111,8 @@ void check_physical_love(){
 void update_awake_feelings(){
   if (shake && !shock){
     emotionLevel += 1; //feelings are obviously linear
-    if (emotionLevel > 999){
-      emotionLevel = 995;  // i feel like it might get stuck 999
+    if (emotionLevel > MAXHAPPY){
+      emotionLevel = MAXHAPPY - 5;  // i feel like it might get stuck 999
     }
   } else if (!shake && !shock){
     emotionLevel -= 1;
@@ -115,17 +125,5 @@ void update_awake_feelings(){
 }
 
 void update_sleep_feelings(){
-  if (shake && !shock){
-    emotionLevel += 1; //feelings are obviously linear
-    if (emotionLevel > 999){
-      emotionLevel = 995;  // i feel like it might get stuck 999
-    }
-  } else if (!shake && !shock){
-    emotionLevel -= 1;
-    if (emotionLevel < 0){
-      emotionLevel = 5; // i feel like it might get stuck if 0
-    }
-  } else if (shock){ //if shock, make it in cry state
-    emotionLevel = 15;
   }
 }

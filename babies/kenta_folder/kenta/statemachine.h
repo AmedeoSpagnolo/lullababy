@@ -40,18 +40,17 @@ void state_machine_run(unsigned long birthday, int emotionLevel, bool shake){
 }
 
 void status_awake_loop(int emotionLevel){
-    int maxhappy = 200;
-    if(emotionLevel > 0 && emotionLevel < maxhappy/4) {
+    if(emotionLevel > 0 && emotionLevel < MAXHAPPY/4) {
       substate = A;
-    } else if(emotionLevel > maxhappy/4 && emotionLevel < maxhappy/4*2) {
+    } else if(emotionLevel > MAXHAPPY/4 && emotionLevel < MAXHAPPY/4*2) {
       substate = B;
-    } else if (emotionLevel > maxhappy/4*2 && emotionLevel < maxhappy/4*3) {
+    } else if (emotionLevel > MAXHAPPY/4*2 && emotionLevel < MAXHAPPY/4*3) {
       substate = C;
-    } else if (emotionLevel > maxhappy/4*3 && emotionLevel < maxhappy) {
+    } else if (emotionLevel > MAXHAPPY/4*3 && emotionLevel < MAXHAPPY) {
       substate = D;
     }
 }
 
 void status_asleep_loop(){
-  
+
 }
