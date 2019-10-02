@@ -28,7 +28,8 @@ bool DEBUG = false;
 bool ACCELEROMETER_DEBUG = false;
 
 void check_physical_love(); //previously bool isMoving()
-void update_feelings(); //use both in awake and asleep
+void update_awake_feelings(); 
+void update_sleep_feelings(); 
 
 void setup(){
   Serial.begin(9600);
@@ -43,13 +44,24 @@ void setup(){
 
 void loop(){
   check_physical_love(); //update shake and shock
-  update_feelings();
-  state_machine_run(birthday);
-  Serial.print("State: ");    Serial.print(state);
-  Serial.print(" - EmotionLevel: "); Serial.print(emotionLevel);
-  Serial.print(kaoMoji);
-  Serial.print(" - Shake: "); Serial.print(shake);
-  Serial.print(" - Shock: "); Serial.println(shock);
+  state_machine_run(birthday,emotionLevel,shake);
+
+  switch(state){
+    case AWAKE:  
+      update_awake_feelings(); 
+      Serial.print(state_list[state]); Serial.print(" "); 
+      Serial.print(kaoMoji_array[substate]); Serial.print(" "); 
+      Serial.print(" - EmotionLevel: "); Serial.print(emotionLevel);
+      Serial.print(" - Substate: "); Serial.print(substate);
+      Serial.print(" - Shake: "); Serial.print(shake);
+      Serial.print(" - Shock: "); Serial.println(shock);
+      break;
+    case ASLEEP:  
+      update_sleep_feelings(); 
+      Serial.print(state_list[state]);
+      Serial.print(" - Shock: "); Serial.println(shock);
+      break;
+  }
   delay(50);
 }
 
@@ -86,7 +98,7 @@ void check_physical_love(){
   }
 }
 
-void update_feelings(){
+void update_awake_feelings(){
   if (shake && !shock){
     emotionLevel += 1; //feelings are obviously linear
     if (emotionLevel > 999){
@@ -102,25 +114,18 @@ void update_feelings(){
   }
 }
 
-void status_awake_loop(){
-  // led pulse normal,
-  // bad - good indicatior results to high - zero volume
-  switch(emotionLevel){
-    case 0 ... 250:
-      kaoMoji = kaoMoji_array[0];
-      //player.setVolume(0x00); // 0
-      break;
-    case 251 ... 500:
-      kaoMoji = kaoMoji_array[1];
-//      player.setVolume(0x50); //80
-      break;
-    case 501 ... 750:
-      kaoMoji = kaoMoji_array[2];
-//      player.setVolume(0xa0); //160
-      break;
-    case 751 ... 1000:
-      kaoMoji = kaoMoji_array[3];
-//      player.setVolume(0xfe); //
-      break;
+void update_sleep_feelings(){
+  if (shake && !shock){
+    emotionLevel += 1; //feelings are obviously linear
+    if (emotionLevel > 999){
+      emotionLevel = 995;  // i feel like it might get stuck 999
+    }
+  } else if (!shake && !shock){
+    emotionLevel -= 1;
+    if (emotionLevel < 0){
+      emotionLevel = 5; // i feel like it might get stuck if 0
+    }
+  } else if (shock){ //if shock, make it in cry state
+    emotionLevel = 15;
   }
 }

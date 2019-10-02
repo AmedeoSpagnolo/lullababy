@@ -1,2 +1,1 @@
-int THIS = 34;
-// char* ame = "amedeo"
+int SLEEPTIME = 15; // Sleep Time in Seconds
