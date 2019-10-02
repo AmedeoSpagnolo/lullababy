@@ -7,6 +7,7 @@
 #include "statemachine.h"
 
 char mp3name[3][15] = {"a.mp3","b.mp3","c.mp3"};
+char kaoMoji_array[5][20] = {"(ToT)","(T_T)","(;_;)","('U')"};
 
 unsigned long birthday = millis();
 
@@ -20,6 +21,7 @@ bool shock = false;
 //        (ToT)         (T_T)         (;_;)         ('U')
 //
 int emotionLevel = 80;
+char* kaoMoji = kaoMoji_array[0];
 
 // DEBUG
 bool DEBUG = false;
@@ -45,6 +47,7 @@ void loop(){
   state_machine_run(birthday);
   Serial.print("State: ");    Serial.print(state);
   Serial.print(" - EmotionLevel: "); Serial.print(emotionLevel);
+  Serial.print(kaoMoji);
   Serial.print(" - Shake: "); Serial.print(shake);
   Serial.print(" - Shock: "); Serial.println(shock);
   delay(50);
@@ -90,11 +93,34 @@ void update_feelings(){
       emotionLevel = 995;  // i feel like it might get stuck 999
     }
   } else if (!shake && !shock){
-    emotionLevel -= 4;
+    emotionLevel -= 1;
     if (emotionLevel < 0){
       emotionLevel = 5; // i feel like it might get stuck if 0
     }
   } else if (shock){ //if shock, make it in cry state
     emotionLevel = 15;
+  }
+}
+
+void status_awake_loop(){
+  // led pulse normal,
+  // bad - good indicatior results to high - zero volume
+  switch(emotionLevel){
+    case 0 ... 250:
+      kaoMoji = kaoMoji_array[0];
+      //player.setVolume(0x00); // 0
+      break;
+    case 251 ... 500:
+      kaoMoji = kaoMoji_array[1];
+//      player.setVolume(0x50); //80
+      break;
+    case 501 ... 750:
+      kaoMoji = kaoMoji_array[2];
+//      player.setVolume(0xa0); //160
+      break;
+    case 751 ... 1000:
+      kaoMoji = kaoMoji_array[3];
+//      player.setVolume(0xfe); //
+      break;
   }
 }

@@ -18,9 +18,10 @@ bool _isTimeToSleep(unsigned long birthday){
   }
 }
 
-void state_machine_run(unsigned long birthday){
+void state_machine_run(unsigned long birthday, int emotionLevel){
   bool timetosleep = _isTimeToSleep(birthday);
   switch(state){
+    
     case AWAKE:
       status_awake_loop();
       if(timetosleep){
