@@ -19,8 +19,7 @@ class Movement
     int _pin_z;
     bool _shake;
     bool _shock;
-    long _prev ;
-    int _l;
+    long _prev;
     int _shake_sensibility;
     int _shock_sensibility;
 };
