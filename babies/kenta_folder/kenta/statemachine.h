@@ -1,5 +1,5 @@
 enum state_enum {ASLEEP,AWAKE};
-char state_list[2][12] = {"SLEEP","AWAKE"};
+char state_list[2][10] = {"SLEEP","AWAKE"};
 
 enum substate_enum {A,B,C,D};
 

@@ -10,19 +10,18 @@ void check_physical_love(){
   long x = 0;
   long y = 0;
   long z = 0;
-
-//read value 50 times and output the average
-  for (i=0 ; i < 50 ; i++) {
+  int t = 50; // read value 50 times and output the average
+  for (i=0 ; i < t ; i++) {
     x = x + analogRead(3);
     y = y + analogRead(4);
     z = z + analogRead(5);
   }
-  x = (x / 50);   y = (y / 50);  z = (z / 50);
+  x = (x/t);   y = (y/t);  z = (z/t);
   curr = x + y + z;
   delta = abs(curr-prev); // compare with last sum(x,y,z)
 
-//update shake and shock and prev
-  shake = (delta > 4);
-  shock = (delta > 400);
+  // Update shake and shock and prev
+  shake = (delta > SHAKE_SENSIBILITY); // 4
+  shock = (delta > map(SHOKE_SENSIBILITY,0,10,200,1000)); // 400
   prev = curr;
 }
