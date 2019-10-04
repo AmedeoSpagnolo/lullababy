@@ -67,11 +67,9 @@ void Baby::_wake_up(){
 
 void Baby::_updateEmotion(){
   acc.updateValues();
-  shake = acc.shake();
-  shock = acc.shock();
-  if (shock){
+  if (acc.shock()){
     happyness = 0;
-  } else if (shake && (happyness <= MAXHAPPY)){
+  } else if (acc.shake() && (happyness <= MAXHAPPY)){
     happyness += 4;
   } else if (happyness >= 0){
     happyness -= 1;
