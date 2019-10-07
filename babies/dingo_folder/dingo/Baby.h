@@ -20,15 +20,17 @@ class Baby
     bool isMute;
     int shake;
     int shock;
+    void opt(int);
   private:
-    bool isBeenShaken;
+    bool isBeenShocked;
     unsigned long birthday;
     bool _timetosleep();
     void _go_to_sleep();
     void _wake_up();
     void _updateEmotion();
-    void _check_if_shaken();
+    void _check_if_shocked();
     void _triggerEmotion();
+    int SLEEPTIME;
 };
 
 #endif

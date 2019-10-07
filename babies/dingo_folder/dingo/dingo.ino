@@ -1,9 +1,10 @@
 #include "Baby.h"
 
-Baby dingo = Baby();
+Baby dingo = Baby();  // in seconds
 
 void setup(){
   Serial.begin(9600);
+  dingo.opt(10); // rest time in second
 }
 
 void loop(){

@@ -19,26 +19,30 @@ Baby::Baby(){
   acc.shakeSensibility(5); // 0 - 10
   eyes.pins(3,6);
   uint8_t state = AWAKE;
-  bool isBeenShaken = false;
+  bool isBeenShocked = false;
   unsigned long birthday = millis();
   bool isCrying   = false;
   bool isSpeaking = false;
   bool isMute     = false;
+  int SLEEPTIME;
+}
+
+void Baby::opt(int sleepTime){
+  SLEEPTIME = sleepTime;
 }
 
 void Baby::alive(){
   switch(state){
     case AWAKE:
       awake();
-      if(_timetosleep() && !isBeenShaken){
+      if(_timetosleep()){
         _go_to_sleep();
         state = ASLEEP;
       }
       break;
     case ASLEEP:
       sleep();
-      Serial.println(isBeenShaken);
-      if(!_timetosleep() || isBeenShaken){
+      if(!_timetosleep()){
         _wake_up();
         state = AWAKE;
       }
@@ -47,12 +51,16 @@ void Baby::alive(){
 }
 
 bool Baby::_timetosleep(){
-  int SLEEPTIME = 50; // in seconds
-  long temp = (millis() - birthday) % (SLEEPTIME*1000);
-  if (temp < SLEEPTIME*1000/2){
+  long age = millis() - birthday;
+  long temp = age % (SLEEPTIME*1000);
+  Serial.print(SLEEPTIME); Serial.print(" - ");
+  Serial.print(temp); Serial.print(" - ");
+  if (temp < SLEEPTIME*1000/2 && !isBeenShocked){
     return true;
+  } else if (temp >= SLEEPTIME*1000/2){
+    isBeenShocked = false;
+    return false;
   } else {
-    isBeenShaken = false;
     return false;
   }
 }
@@ -67,6 +75,8 @@ void Baby::_wake_up(){
 
 void Baby::_updateEmotion(){
   acc.updateValues();
+  shock = acc.shock();
+  shake = acc.shake();
   if (acc.shock()){
     happyness = 0;
   } else if (acc.shake() && (happyness <= MAXHAPPY)){
@@ -89,15 +99,15 @@ void Baby::_triggerEmotion(){
   }
 }
 
-void Baby::_check_if_shaken(){
+void Baby::_check_if_shocked(){
   acc.updateValues();
   shock = acc.shock();
-  shock = acc.shock();
-  if (shock) isBeenShaken = true;
+  shake = acc.shake();
+  if (shock) isBeenShocked = true;
 }
 
 void Baby::sleep(){
-  _check_if_shaken();
+  _check_if_shocked();
   eyes.close();
 }
 
